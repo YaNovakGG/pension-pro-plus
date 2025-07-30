@@ -1,28 +1,35 @@
 name: update-funds
+
 on:
-  schedule: [ { cron: '0 4 10 * *' } ]  # 10th of every month
-  workflow_dispatch:
+  # every 10th of the month at 07:00 Israel (04:00 UTC)
+  schedule:
+    - cron: '0 4 10 * *'
+  workflow_dispatch:        # allows manual run in Actions tab
+
 jobs:
   run:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.11' }
-      - run: pip install requests pandas
-      - run: |
-          python - <<'PY'
-import json, datetime
-# ↓↓↓ Replace with real Pension-Net pulling code later
-rows=[{"manager":"Phoenix","fund_no":"51498011","cat":"S&P 500","track_type":"S&P 500",
-       "ret1y":0.22,"ret3y":0.52,"ret5y":0.98,
-       "sharpe":0.91,"std":0.16,"demo":0.001,"act":0.0012,
-       "explain":"Auto-generated", "asof":str(datetime.date.today())}]
-open('funds.json','w',encoding='utf8').write(json.dumps(rows,ensure_ascii=False,indent=2))
-PY
-      - run: |
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pandas
+
+      - name: Build funds.json
+        run: |
+          python fetch_funds.py
+
+      - name: Commit and push funds.json
+        run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add funds.json
-          git commit -m "auto: update $(date -u '+%F')" || echo "No change"
+          git commit -m "auto: update $(date -u '+%F')" || echo "No changes"
           git push
