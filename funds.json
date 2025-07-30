@@ -1,0 +1,10 @@
+[{
+  "manager":"Demo Fund",
+  "fund_no":"00000000",
+  "cat":"מניות",
+  "track_type":"מניות",
+  "ret1y":0.12,"ret3y":0.35,"ret5y":0.78,
+  "sharpe":0.90,"std":0.12,"demo":0.001,"act":0.002,
+  "explain":"Demo row – will be replaced by workflow",
+  "asof":"2025-07-30"
+}]
