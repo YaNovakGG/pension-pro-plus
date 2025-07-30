@@ -1,0 +1,26 @@
+name: update-funds
+on:
+  schedule: [ { cron: '0 4 10 * *' } ]
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with: { python-version: '3.11' }
+    - run: pip install requests pandas
+    - run: |
+        python - <<'PY'
+import json, requests, datetime, pandas as pd, math, pathlib, os, sys, textwrap
+# --- כאן בא הסקריפט האמיתי שמושך מפנסיה-נט ומייצר funds.json ---
+data=[{"manager":"הפניקס","fund_no":"51498011","track_type":"S&P 500","cat":"מדד S&P 500",
+        "ret5y":0.98,"sharpe":0.90,"act":0.0012,"explain":"הסבר אוטומטי","asof":str(datetime.date.today())}]
+open('funds.json','w',encoding='utf8').write(json.dumps(data,ensure_ascii=False,indent=2))
+PY
+    - run: |
+        git config user.name "github-actions"
+        git config user.email "actions@github.com"
+        git add funds.json
+        git commit -m "auto: update $(date -u '+%F')" || echo "No changes"
+        git push
